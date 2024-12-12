@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import bcrypt from 'bcrypt';
 
 const uri = 'mongodb+srv://admin:pass@cluster0.wg2ou.mongodb.net/app?retryWrites=true&w=majority';
 
@@ -28,12 +29,15 @@ export async function POST(req) {
             );
         }
 
-        // Save user with 'username' as email and correct 'pass' field
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Save user with 'username' as email and hashed password
         const newUser = {
             username: email,
             phone,
             dob,
-            pass: password, // Save password under 'pass'
+            pass: hashedPassword, // Store hashed password
             acc_type: 'customer', // Default role
         };
 

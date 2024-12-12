@@ -1,134 +1,100 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Paper, Box, Grid } from '@mui/material';
+import { Box, Typography, TextField, Button, Alert } from '@mui/material';
 
 export default function Register({ setCurrentView }) {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
     const [dob, setDob] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    const handleRegister = async (event) => {
+        event.preventDefault();
 
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
+        if (!email || !password || !phone || !dob) {
+            setError('All fields are required.');
             return;
         }
 
         try {
-            const res = await fetch('/api/register', {
+            const response = await fetch('/api/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, phone, dob, password }), // Ensure 'password' is used consistently
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, phone, dob }),
             });
 
-            const result = await res.json();
+            const data = await response.json();
 
-            if (result.status === 'success') {
-                setSuccess('Registration successful! Redirecting to dashboard...');
-                setTimeout(() => {
-                    setCurrentView('dashboard');
-                }, 2000);
+            if (response.ok) {
+                setSuccess('Registration successful! Redirecting to login...');
+                setTimeout(() => setCurrentView('login'), 2000);
             } else {
-                setError(result.message || 'Registration failed');
+                setError(data.message || 'Registration failed.');
             }
         } catch (err) {
-            console.error('Register Error:', err);
+            console.error('Registration Error:', err);
             setError('An error occurred. Please try again.');
         }
     };
 
     return (
-        <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '100vh' }}>
-            <Grid item xs={10} sm={8} md={4}>
-                <Paper sx={{ p: 4 }} elevation={3}>
-                    <Typography variant="h4" gutterBottom align="center">
-                        Register
-                    </Typography>
-                    {error && (
-                        <Typography variant="body2" color="error" gutterBottom align="center">
-                            {error}
-                        </Typography>
-                    )}
-                    {success && (
-                        <Typography variant="body2" color="success" gutterBottom align="center">
-                            {success}
-                        </Typography>
-                    )}
-                    <Box
-                        component="form"
-                        onSubmit={handleRegister}
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            mt: 2,
-                        }}
-                    >
-                        <TextField
-                            label="Email"
-                            variant="outlined"
-                            fullWidth
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <TextField
-                            label="Phone"
-                            variant="outlined"
-                            fullWidth
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                        />
-                        <TextField
-                            label="Date of Birth"
-                            type="date"
-                            variant="outlined"
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            value={dob}
-                            onChange={(e) => setDob(e.target.value)}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <TextField
-                            label="Confirm Password"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                        <Button type="submit" variant="contained" fullWidth>
-                            Register
-                        </Button>
-                    </Box>
-                    <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                        <Button
-                            variant="text"
-                            color="primary"
-                            onClick={() => setCurrentView('login')}
-                            sx={{ textTransform: 'none', p: 0, m: 0 }}
-                        >
-                            Back to Login
-                        </Button>
-                    </Typography>
-                </Paper>
-            </Grid>
-        </Grid>
+        <Box sx={{ p: 3, maxWidth: 400, margin: 'auto', textAlign: 'center' }}>
+            <Typography variant="h4" gutterBottom>Register</Typography>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+            <TextField
+                label="Email"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+                label="Password"
+                type="password"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+                label="Phone Number"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+            />
+            <TextField
+                label="Date of Birth"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+            />
+            <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2 }}
+                onClick={handleRegister}
+            >
+                Register
+            </Button>
+            <Typography variant="body2" sx={{ mt: 2 }}>
+                Already registered?{' '}
+                <Button color="secondary" onClick={() => setCurrentView('login')}>
+                    Login
+                </Button>
+            </Typography>
+        </Box>
     );
 }
