@@ -15,6 +15,12 @@ export default function Login({ setCurrentView, setUser }) {
             setError('All fields are required.');
             return;
         }
+        
+        if (username.length > 50 || password.length > 50) {
+            setError('Input too long.');
+            return;
+        }
+        
 
         try {
             const response = await fetch('/api/login', {
