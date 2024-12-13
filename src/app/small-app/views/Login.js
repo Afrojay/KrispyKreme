@@ -26,8 +26,10 @@ export default function Login({ setCurrentView, setUser }) {
             const data = await response.json();
 
             if (response.ok) {
-                setUser(data.user);
-                setCurrentView(data.user.acc_type === 'manager' ? 'managerDashboard' : 'customerDashboard');
+                // Save token in localStorage
+                localStorage.setItem('token', data.token);
+                setUser({ ...data.user, role: data.user.acc_type }); // Store user info
+                setCurrentView('dashboard'); // Navigate to dashboard
             } else {
                 setError(data.message || 'Login failed.');
             }

@@ -3,17 +3,10 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 const uri = 'mongodb+srv://admin:pass@cluster0.wg2ou.mongodb.net/app?retryWrites=true&w=majority';
-const SECRET_KEY = 'your_secret_key'; // Replace with a secure key
+const SECRET_KEY = 'randomKey123'; // Replace with a secure key
 
 export async function POST(req) {
-    const { username, pass } = await req.json();
-
-    if (!username || !pass) {
-        return new Response(
-            JSON.stringify({ status: 'error', message: 'Username and password are required' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-    }
+    const { username, pass, token } = await req.json();
 
     const client = new MongoClient(uri);
 
@@ -21,6 +14,16 @@ export async function POST(req) {
         await client.connect();
         const db = client.db('app');
         const collection = db.collection('login');
+
+        // Check if it's a token validation request= not working
+        
+        // Normal login flow
+        if (!username || !pass) {
+            return new Response(
+                JSON.stringify({ status: 'error', message: 'Username and password are required' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
 
         console.log('Login attempt:', username);
 

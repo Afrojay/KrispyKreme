@@ -7,8 +7,12 @@ export default function CustomerDashboard({ user, setCart }) {
     const [weather, setWeather] = useState(null);
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+
         // Fetch products
-        fetch('/api/getProducts')
+        fetch('/api/getProducts', {
+            headers: { Authorization: `Bearer ${token}` },
+        })
             .then((res) => res.json())
             .then((result) => {
                 if (result.products) {
@@ -22,7 +26,9 @@ export default function CustomerDashboard({ user, setCart }) {
             });
 
         // Fetch weather
-        fetch('/api/getWeather')
+        fetch('/api/getWeather', {
+            headers: { Authorization: `Bearer ${token}` },
+        })
             .then((res) => res.json())
             .then((result) => {
                 setWeather(result);
@@ -33,9 +39,13 @@ export default function CustomerDashboard({ user, setCart }) {
     }, []);
 
     const addToCart = (product) => {
+        const token = localStorage.getItem('token');
         fetch('/api/putInCart', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify({
                 username: user.username,
                 pname: product.pname,
@@ -73,25 +83,24 @@ export default function CustomerDashboard({ user, setCart }) {
             ) : (
                 <Grid container spacing={3}>
                     {products.map((product) => (
-                       <Grid item xs={12} sm={6} md={4} key={product._id}>
-                       <Paper sx={{ p: 2 }}>
-                           {/* Display the product image */}
-                           <img
-                               src={product.image}
-                               alt={product.pname}
-                               style={{ width: '100%', height: 'auto', marginBottom: '10px' }}
-                           />
-                           <Typography variant="h6">{product.pname}</Typography>
-                           <Typography>${product.price.toFixed(2)}</Typography>
-                           <Button
-                               variant="contained"
-                               color="primary"
-                               onClick={() => addToCart(product)}
-                           >
-                               Add to Cart
-                           </Button>
-                       </Paper>
-                   </Grid>
+                        <Grid item xs={12} sm={6} md={4} key={product._id}>
+                            <Paper sx={{ p: 2 }}>
+                                <img
+                                    src={product.image}
+                                    alt={product.pname}
+                                    style={{ width: '100%', height: 'auto', marginBottom: '10px' }}
+                                />
+                                <Typography variant="h6">{product.pname}</Typography>
+                                <Typography>${product.price.toFixed(2)}</Typography>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => addToCart(product)}
+                                >
+                                    Add to Cart
+                                </Button>
+                            </Paper>
+                        </Grid>
                     ))}
                 </Grid>
             )}
